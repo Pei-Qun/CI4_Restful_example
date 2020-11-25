@@ -11,7 +11,12 @@ class Register extends BaseController
 	{
 		if($this->auth->isLogin()) return redirect()->to("/member") ;
 		return view('register_view');
-	}
+  }
+
+  public function getVerifyCode() {
+
+  }
+  
   public function doSignup()
   {
     $name = $this->request->getPost("name");
