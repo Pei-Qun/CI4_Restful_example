@@ -21,7 +21,7 @@
       </label>
       <label>
         電子信箱
-        <input type="email" name="email" placeholder="Email" required>
+        <input type="email" name="email" placeholder="Email" id="email" required>
       </label>
       <label>
         帳號
@@ -52,17 +52,34 @@
           dataType: 'json',
           data: $("#register").serialize()
         })
-        .done(function() {
-          console.log('window.location.href')
-          window.location.href = '/login';
+        .done(function(e) {
+          // alert(e.message)
+          getVerifyCodeAjax()
+          // window.location.href = '/verify';
         })
         .fail(function(e) {
+          console.log(e)
           try {
-            console.log(e.responseJSON)
-            // alert(e.responseJSON.messages.error)
+            alert(e.responseJSON.messages.error)
           } catch (error) {
             alert("伺服器處理連線失敗請重新再試")
           }
+        });
+      }
+      function getVerifyCodeAjax() {
+        $.ajax({
+          url: "<?= base_url("email/getVerifyCode") ?>",
+          type: 'POST',
+          dataType: 'json',
+          data: $("#register").serialize()
+        })
+        .done(function(e) {
+          alert('驗證碼已寄出')
+          window.location.href = '/verify';
+        })
+        .fail(function(e) {
+          console.log
+          alert("伺服器處理連線失敗請重新再試")
         });
       }
     </script>

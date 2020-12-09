@@ -37,9 +37,22 @@ class VerifyModel extends Model
     return $string;
   }
 
+  public function getVerify(
+    string $email,
+    string $code
+  ) {
+    $builder = $this->db
+        ->table("verify")
+        ->select("*")
+        ->where("email", $email)
+        ->where("code", $code);
+    $result = $builder->get()->getRow();
+    return $result ? true : false; 
+  }
+
   public function sentMail(string $mail, string $code) : bool {
     $email = \Config\Services::email();
-		$email->setFrom('noReplyMeason@gmail.com', '曾霈宭');
+		$email->setFrom('noReplyMeason@gmail.com', 'ci4 註冊通知');
 		$email->setTo($mail);
 		$email->setSubject('註冊驗證信');
 		$email->setMessage('你的驗證碼: '.$code);
@@ -47,6 +60,7 @@ class VerifyModel extends Model
     if(!$email->send()) {
       $err = $email->printDebugger();
       log_message('error', $err);
+      print($err);
       return false;
     } else {
       return true;

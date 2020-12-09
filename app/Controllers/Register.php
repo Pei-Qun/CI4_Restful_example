@@ -33,6 +33,6 @@ class Register extends BaseController
     }
     
     // respondCreated 是 201
-    return $this->respondCreated();
+    return $this->respondCreated(['message' => '註冊成功']);
   }
 }

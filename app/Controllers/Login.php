@@ -23,9 +23,13 @@ class Login extends BaseController
         if ($this->auth->isLogin()) return $this->fail("已登入", 403);
         $account = $this->request->getPost("account");
         $password = $this->request->getPost("password");
+        $recaptcha = $this->request->getPost("g-recaptcha-response");
 
         if ($account == null || $password == null) {
             return $this->fail("需傳遞帳號及密碼進行登入", 400);
+        }
+        if ($recaptcha == "") {
+            return $this->fail("請勾選我不是機器人", 400);
         }
 
         $model = new MemberModel();
@@ -33,6 +37,23 @@ class Login extends BaseController
         if (!$memberResult) {
             return $this->fail("資料庫資料取得失敗", 404);
         }
+
+        // 我不是機器人 start
+        $secretKey = env("SECRET_KEY");
+        $client = \Config\Services::curlrequest();
+        $ip = $this->request->getIPAddress();
+        $response = $client->request('POST', 'https://www.google.com/recaptcha/api/siteverify', [
+            'form_params' => [
+                'secret' => $secretKey,
+                'response' => $recaptcha,
+                'remoteip' => $ip
+            ]
+        ]);
+        $data = json_decode($response->getBody(), true);
+        if (!$data["success"]) {
+            return $this->fail("驗證失敗", 400);
+        }
+        // 我不是機器人 end
 
         $logic = new LoginLogicModel();
         $memberData = $logic->processLogin($memberResult);
